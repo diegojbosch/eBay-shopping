@@ -1,0 +1,8 @@
+form {   
+    border: 1px solid #999;
+    border: inset 1px solid #333;
+    width: 600px;
+    height: 290px;
+    margin: auto;
+    position: relative;
+}

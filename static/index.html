@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>eBay Shopping</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="utf-8">
+        
+        <!-- CSS -->
+        <link rel="stylesheet" href="/static/css/style.css" media="screen" />
+
+    </head>
+    
+    <body>
+        <script type="text/javascript">
+            
+            function setFrame(){
+                
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var json_response = JSON.parse(xhr.response);
+                        // TODO: display response
+                    }
+                }
+                
+                var keywords = document.getElementById("keywords").value;
+                var minPrice = document.getElementById("from").value;
+                var maxPrice = document.getElementById("to").value;
+                var conditionNew = document.getElementById("new").checked;
+                var conditionUsed = document.getElementById("used").checked;
+                var conditionVeryGood = document.getElementById("very good").checked;
+                var conditionGood = document.getElementById("good").checked;
+                var conditionAcceptable = document.getElementById("acceptable").checked;
+                var returnAccepted = document.getElementById("return").checked;
+                var freeShipping = document.getElementById("free").checked;
+                var expeditedShipping = document.getElementById("expedited").checked;
+                
+                var queryParams = '?keywords='+keywords+'&min_price='+minPrice+'&max_price='+maxPrice
+                
+                if(typeof conditionNew !== 'undefined'){
+                    queryParams += '&condition_new=' + conditionNew
+                }
+                
+                if(typeof conditionUsed !== 'undefined'){
+                    queryParams += '&condition_used=' + conditionUsed
+                }
+                
+                if(typeof conditionVeryGood !== 'undefined'){
+                    queryParams += '&condition_very_good=' + conditionVeryGood
+                }
+                
+                if(typeof conditionGood !== 'undefined'){
+                    queryParams += '&condition_good=' + conditionGood
+                }
+                
+                if(typeof conditionAcceptable !== 'undefined'){
+                    queryParams += '&condition_acceptable=' + conditionAcceptable
+                }
+                
+                if(typeof returnAccepted !== 'undefined'){
+                    queryParams += '&return_accepted=' + returnAccepted
+                }
+                
+                if(typeof freeShipping !== 'undefined'){
+                    queryParams += '&free_shipping=' + freeShipping
+                }
+                
+                if(typeof expeditedShipping !== 'undefined'){
+                    queryParams += '&expedited_shipping=' + expeditedShipping
+                }
+  
+                xhr.open("GET", "http://localhost:5000/api/v1.0/search" + queryParams, false);
+                xhr.send();
+            }
+            
+        </script>
+        
+        <div>
+            <form name="search_form">
+                
+                <div><h4><img src="/static/img/eBay_logo.png" height="50"> Shopping</h4></div>
+                
+                <div><b>Key words:</b>
+                    <input type="text" id="keywords" required>
+                </div>
+                <div><b>Price range:</b> From <input type="number" name="from" id="from" min="0">
+                                    to <input type="number" name="to" id="to" min="0">
+                </div>
+                <div><b>Condition:</b>
+                    <input type="checkbox" name="new" id="new"><label for="new">New</label>
+                    <input type="checkbox" name="used" id="used"><label for="used">Used</label>
+                    <input type="checkbox" name="very good" id="very good"><label for="very good">Very good</label>
+                    <input type="checkbox" name="good" id="good"><label for="good">Good</label>
+                    <input type="checkbox" name="acceptable" id="acceptable"><label for="acceptable">Acceptable</label>
+                </div>
+                <div><b>Seller:</b> 
+                    <input type="checkbox" name="return" id="return"><label for="return">Return accepted</label>
+                </div>
+                <div><b>Shipping:</b> 
+                    <input type="checkbox" name="free" id="free"><label for="free">Free</label>
+                    <input type="checkbox" name="expedited" id="expedited"><label for="expedited">Expedited</label>
+                </div>
+                <div><b>Sort by:</b>
+                    <select name="sortby">
+                        <option selected=selected value="best match">Best match</option>
+                        <option value="price highest first">Price: highest first</option>
+                        <option value="price shipping highest first">Price + Shipping: first</option>
+                        <option value="price shipping lowest first">Price + Shipping: lowest first</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <button type="submit" onclick="setFrame();">Search</button>
+                    <button type="reset">Clear</button>
+                </div>
+            </form>
+            
+        </div>
+    </body>
+    
+</html>
