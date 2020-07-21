@@ -3,10 +3,12 @@ import requests
 
 app = Flask(__name__)
 
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
 if __name__ == '__main__':
 	app.run(debug=True)
 
-@app.route('/')
+@app.route('/search')
 def homepage():
 	return app.send_static_file("index.html")
 
@@ -21,52 +23,56 @@ def get_products():
 	item_filter_number = 0
 
 
-	if request.args.get('keyword') is not None:
-		ebay_api_url += '&keywords=' + request.args.get('keyword')
+	if request.args.get('keywords') is not None:
+		ebay_api_url += '&keywords=' + request.args.get('keywords')
 
-	if request.args.get('sortOrder') is not None:
-		ebay_api_url += '&sortOrder=' + request.args.get('sortOrder')
- 
- 	if request.args.get('maxPrice') is not None:
- 		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=MaxPrice&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('maxPrice') + '&itemFilter(0).paramName=Currency&itemFilter(0).paramValue=USD'
+	if request.args.get('sort_order') is not None:
+		ebay_api_url += '&sortOrder=' + request.args.get('sort_order')
+
+ 	if request.args.get('max_price') is not None:
+ 		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=MaxPrice&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('max_price') + '&itemFilter(0).paramName=Currency&itemFilter(0).paramValue=USD'
  		item_filter_number += 1
 
- 	if request.args.get('minPrice') is not None:
- 		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=MinPrice&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('minPrice') + '&itemFilter(1).paramName=Currency&itemFilter(1).paramValue=USD'
+ 	if request.args.get('min_price') is not None:
+ 		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=MinPrice&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('min_price') + '&itemFilter(1).paramName=Currency&itemFilter(1).paramValue=USD'
  		item_filter_number += 1
 
- 	if request.args.get('returnsAccepted') is not None:
- 		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=ReturnsAcceptedOnly&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('returnsAccepted')
+ 	if request.args.get('return_accepted') == 'true':
+ 		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=ReturnsAcceptedOnly&itemFilter(' + str(item_filter_number) + ').value=true'
  		item_filter_number += 1
-	 
-	if request.args.get('freeShipping') is not None:
-		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=FreeShippingOnly&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('freeShipping')
+
+	if request.args.get('free_shipping') == 'true':
+		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=FreeShippingOnly&itemFilter(' + str(item_filter_number) + ').value=true'
 		item_filter_number += 1
 
-	#only add item filter if value is Expedited
-	if request.args.get('expeditedShipping') == 'Expedited': 
-		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=ExpeditedShippingType&itemFilter(' + str(item_filter_number) + ').value=' + request.args.get('expeditedShipping')
+	if request.args.get('expedited_shipping') == 'true':
+		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=ExpeditedShippingType&itemFilter(' + str(item_filter_number) + ').value=Expedited'
 		item_filter_number += 1
 
-	if request.args.get('condition') is not None:
-		condition_value_number = 0
-		
-		conditions_dict = {
-			"New": "1000",
-			"Used": "3000",
-			"Very Good": "4000",
-			"Good": "5000",
-			"Acceptable": "6000"
-		}
+	condition_value_number = 0
+	conditions_dict = {
+		"new": "1000",
+		"used": "3000",
+		"very_good": "4000",
+		"good": "5000",
+		"acceptable": "6000"
+	}
 
-		ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=Condition'
-		conditions = request.args.get('condition').split(',')
+	for condition in conditions_dict:
+		if request.args.get('condition_' + condition) == 'true':
+			if condition_value_number == 0:
+				ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').name=Condition'
 
-		for condition in conditions:
 			ebay_api_url += '&itemFilter(' + str(item_filter_number) + ').value(' + str(condition_value_number) + ')=' + conditions_dict[condition]
 			condition_value_number += 1
 
-	print ebay_api_url
-	r = requests.get(ebay_api_url)
+	response = requests.get(ebay_api_url)
+	resp_json = response.json()
+	findItems = resp_json.get('findItemsAdvancedResponse')
 
-	return jsonify(r.text)
+	if findItems[0].get('ack')[0] == 'Success':
+		searchResult = findItems[0].get('searchResult')[0]
+		paginationOutput = findItems[0].get('paginationOutput')[0]
+		return jsonify({'status': 'Success', 'searchResult': searchResult, 'paginationOutput': paginationOutput})
+
+	return jsonify({'status': 'Error', 'info': resp_json})
