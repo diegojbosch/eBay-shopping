@@ -1,8 +1,72 @@
 form {   
-    border: 1px solid #999;
+    border: 2px solid #999;
     border: inset 1px solid #333;
     width: 600px;
-    height: 290px;
+    height: 270px;
     margin: auto;
     position: relative;
+}
+
+#card {
+    border: 1px solid #999;
+    width: 800px;
+    height: 190px;
+    margin: 10px auto;
+    position: relative;
+}
+
+#title {
+    font-weight: bold;
+    font-size: 28px;
+    text-align: center;
+}
+
+#row {
+    margin: 8px;
+}
+
+.image {
+    height: 120px;
+    width: 120px;
+    float: left;
+    margin: 15px;
+    transition: transform .3s;
+}
+
+.image:hover {
+  -ms-transform: scale(1.5); /* IE */
+  -webkit-transform: scale(1.5); /* Safari */
+  transform: scale(1.5); 
+}
+
+.image img{
+    border: 1px solid #999;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+#description {
+    margin: 20px;
+}
+
+.upper {
+    text-align: center;
+}
+
+.wrapper {
+  font-size: 50px;
+  width : 450px;
+  height: 90px;
+  position: relative;
+  display: inline-block;
+}
+
+.logo img {
+    float: left;
+    height: 90px;
+}
+
+.shopping {
+    float: left;
+    margin-top: 20px;
 }
