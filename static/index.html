@@ -8,7 +8,6 @@
         
         <!-- CSS -->
         <link rel="stylesheet" href="/static/css/style.css" media="screen" />
-
     </head>
     
     <body>
@@ -16,17 +15,15 @@
             
             function setFrame(){
                 
-                var xhr = new XMLHttpRequest();
-                xhr.onreadystatechange = function() {
-                    if (this.readyState == 4 && this.status == 200) {
-                        var json_response = JSON.parse(xhr.response);
-                        // TODO: display response
-                    }
-                }
-                
                 var keywords = document.getElementById("keywords").value;
                 var minPrice = document.getElementById("from").value;
                 var maxPrice = document.getElementById("to").value;
+                
+                if(maxPrice < minPrice){
+                    window.alert("Min price cannot be greater than max price. Please provide new values.");
+                    return false;
+                }
+                
                 var conditionNew = document.getElementById("new").checked;
                 var conditionUsed = document.getElementById("used").checked;
                 var conditionVeryGood = document.getElementById("very good").checked;
@@ -35,88 +32,125 @@
                 var returnAccepted = document.getElementById("return").checked;
                 var freeShipping = document.getElementById("free").checked;
                 var expeditedShipping = document.getElementById("expedited").checked;
+                var sortOrder = document.getElementById("sortby").value;
                 
                 var queryParams = '?keywords='+keywords+'&min_price='+minPrice+'&max_price='+maxPrice
                 
                 if(typeof conditionNew !== 'undefined'){
-                    queryParams += '&condition_new=' + conditionNew
+                    queryParams += '&condition_new=' + conditionNew;
                 }
                 
                 if(typeof conditionUsed !== 'undefined'){
-                    queryParams += '&condition_used=' + conditionUsed
+                    queryParams += '&condition_used=' + conditionUsed;
                 }
                 
                 if(typeof conditionVeryGood !== 'undefined'){
-                    queryParams += '&condition_very_good=' + conditionVeryGood
+                    queryParams += '&condition_very_good=' + conditionVeryGood;
                 }
                 
                 if(typeof conditionGood !== 'undefined'){
-                    queryParams += '&condition_good=' + conditionGood
+                    queryParams += '&condition_good=' + conditionGood;
                 }
                 
                 if(typeof conditionAcceptable !== 'undefined'){
-                    queryParams += '&condition_acceptable=' + conditionAcceptable
+                    queryParams += '&condition_acceptable=' + conditionAcceptable;
                 }
                 
                 if(typeof returnAccepted !== 'undefined'){
-                    queryParams += '&return_accepted=' + returnAccepted
+                    queryParams += '&return_accepted=' + returnAccepted;
                 }
                 
                 if(typeof freeShipping !== 'undefined'){
-                    queryParams += '&free_shipping=' + freeShipping
+                    queryParams += '&free_shipping=' + freeShipping;
                 }
                 
                 if(typeof expeditedShipping !== 'undefined'){
-                    queryParams += '&expedited_shipping=' + expeditedShipping
+                    queryParams += '&expedited_shipping=' + expeditedShipping;
+                }
+                
+                if(typeof sortOrder !== 'undefined'){
+                    queryParams += '&sort_order=' + sortOrder;
+                }
+                
+                
+                var xhr = new XMLHttpRequest();
+                xhr.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        var json_response = JSON.parse(xhr.responseText);
+                        var items = json_response.searchResult.item;
+                        var totalEntries = json_response.paginationOutput.totalEntries;
+                        var htmlCode = ""
+                        
+                        htmlCode += '<div id="title">' + totalEntries + ' Results found for ' + keywords + '</div>'
+                        
+                        for (i=0; i<items.length; i++) {
+                            htmlCode += '<div id="card"><div class="image"><img src="' + items[i].galleryURL + '"></div><div id="description"><p><a href="' + items[i].viewItemURL[0] + '">' + items[i].title[0] + '</a></p><p>Category: ' + items[i].primaryCategory[0]['categoryName'] + '</p><p>Condition: ' + items[i].condition[0].conditionDisplayName[0] + '</p><p><b>Price: $' + items[i].sellingStatus[0].currentPrice[0].__value__ + '</b> From <i>' + items[i].location[0] + '</i></p></div></div>';
+                        }
+                        document.getElementById("results").innerHTML = htmlCode;
+                    }
                 }
   
                 xhr.open("GET", "http://localhost:5000/api/v1.0/search" + queryParams, false);
                 xhr.send();
             }
             
+            function clearResults(){
+                document.getElementById("results").innerHTML = "";
+                return false;
+            }
+            
         </script>
         
-        <div>
-            <form name="search_form">
-                
-                <div><h4><img src="/static/img/eBay_logo.png" height="50"> Shopping</h4></div>
-                
-                <div><b>Key words:</b>
+        <div class="upper">
+            <div class="wrapper">
+                <div class="logo"><a href="https://www.ebay.com"><img src="/static/img/eBay_logo.png"></a></div><div class="shopping">Shopping</div>
+            </div>
+        </div>
+        <div>          
+            <form name="search_form" method="GET" onsubmit="setFrame(); return false" onreset="clearResults();">
+           
+                <div id="row"><b>Key words:</b>
                     <input type="text" id="keywords" required>
                 </div>
-                <div><b>Price range:</b> From <input type="number" name="from" id="from" min="0">
-                                    to <input type="number" name="to" id="to" min="0">
+                <hr />
+                <div id="row"><b>Price range:</b> From <input type="number" name="from" id="from" min="0" style="width: 4em" required>
+                                    to <input type="number" name="to" id="to" min="0" style="width: 4em" required>
                 </div>
-                <div><b>Condition:</b>
+                <hr />
+                <div id="row"><b>Condition:</b>
                     <input type="checkbox" name="new" id="new"><label for="new">New</label>
                     <input type="checkbox" name="used" id="used"><label for="used">Used</label>
                     <input type="checkbox" name="very good" id="very good"><label for="very good">Very good</label>
                     <input type="checkbox" name="good" id="good"><label for="good">Good</label>
                     <input type="checkbox" name="acceptable" id="acceptable"><label for="acceptable">Acceptable</label>
                 </div>
-                <div><b>Seller:</b> 
+                <hr />
+                <div id="row"><b>Seller:</b>
                     <input type="checkbox" name="return" id="return"><label for="return">Return accepted</label>
                 </div>
-                <div><b>Shipping:</b> 
+                <hr />
+                <div id="row"><b>Shipping:</b> 
                     <input type="checkbox" name="free" id="free"><label for="free">Free</label>
                     <input type="checkbox" name="expedited" id="expedited"><label for="expedited">Expedited</label>
                 </div>
-                <div><b>Sort by:</b>
-                    <select name="sortby">
-                        <option selected=selected value="best match">Best match</option>
-                        <option value="price highest first">Price: highest first</option>
-                        <option value="price shipping highest first">Price + Shipping: first</option>
-                        <option value="price shipping lowest first">Price + Shipping: lowest first</option>
+                <hr />
+                <div id="row"><b>Sort by:</b>
+                    <select name="sortby" id="sortby">
+                        <option selected=selected value="BestMatch">Best match</option>
+                        <option value="CurrentPriceHighest">Price: highest first</option>
+                        <option value="PricePlusShippingHighest">Price + Shipping: first</option>
+                        <option value="PricePlusShippingLowest">Price + Shipping: lowest first</option>
                     </select>
                 </div>
-                
-                <div>
-                    <button type="submit" onclick="setFrame();">Search</button>
+                <hr />
+                <div id="row" style="text-align: center;">
+                    <button type="submit">Search</button>
                     <button type="reset">Clear</button>
                 </div>
             </form>
-            
         </div>
+        
+        <div id="results"></div>
     </body>
     
 </html>
