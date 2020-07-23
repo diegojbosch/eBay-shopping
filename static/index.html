@@ -79,12 +79,20 @@
                         var json_response = JSON.parse(xhr.responseText);
                         var items = json_response.searchResult.item;
                         var totalEntries = json_response.paginationOutput.totalEntries;
-                        var htmlCode = ""
+                        var productImage;
+                        var htmlCode = "";
                         
-                        htmlCode += '<div id="title">' + totalEntries + ' Results found for ' + keywords + '</div>'
+                        htmlCode += '<div id="title">' + totalEntries + ' Results found for ' + keywords + '</div>';
                         
                         for (i=0; i<items.length; i++) {
-                            htmlCode += '<div id="card"><div class="image"><img src="' + items[i].galleryURL + '"></div><div id="description"><p><a href="' + items[i].viewItemURL[0] + '">' + items[i].title[0] + '</a></p><p>Category: ' + items[i].primaryCategory[0]['categoryName'] + '</p><p>Condition: ' + items[i].condition[0].conditionDisplayName[0] + '</p><p><b>Price: $' + items[i].sellingStatus[0].currentPrice[0].__value__ + '</b> From <i>' + items[i].location[0] + '</i></p></div></div>';
+                            
+                            if(items[i].galleryURL == 'https://thumbs1.ebaystatic.com/pict/04040_0.jpg'){
+                                productImage = '/static/img/ebay_default.jpg';
+                            } else {
+                                productImage = items[i].galleryURL;
+                            }
+                            
+                            htmlCode += '<div id="card"><div class="image"><img src="' + productImage + '"></div><div id="description"><p><a href="' + items[i].viewItemURL[0] + '">' + items[i].title[0] + '</a></p><p>Category: ' + items[i].primaryCategory[0]['categoryName'] + '</p><p>Condition: ' + items[i].condition[0].conditionDisplayName[0] + '</p><p><b>Price: $' + items[i].sellingStatus[0].currentPrice[0].__value__ + '</b> From <i>' + items[i].location[0] + '</i></p></div></div>';
                         }
                         document.getElementById("results").innerHTML = htmlCode;
                     }
