@@ -7,12 +7,20 @@ form {
     position: relative;
 }
 
-#card {
+.show-card {
     border: 1px solid #999;
     width: 800px;
     height: 190px;
     margin: 10px auto;
     position: relative;
+}
+
+.hide {
+    display: none;
+}
+
+.show-button {
+    text-align: center;
 }
 
 #title {
