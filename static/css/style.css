@@ -23,7 +23,7 @@ form {
     text-align: center;
 }
 
-#title {
+.title {
     font-weight: bold;
     font-size: 28px;
     text-align: center;

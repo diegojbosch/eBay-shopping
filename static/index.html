@@ -104,29 +104,35 @@
                         var divId;
                         var htmlCode = "";
                         
-                        htmlCode += '<div id="title">' + totalEntries + ' Results found for ' + keywords + '</div>';
-                        
-                        for (i=0; i<items.length; i++) {
-                            
-                            if(items[i].galleryURL == 'https://thumbs1.ebaystatic.com/pict/04040_0.jpg'){
-                                productImage = '/static/img/ebay_default.jpg';
-                            } else {
-                                productImage = items[i].galleryURL;
+                        if(typeof items !== 'undefined'){
+                            htmlCode += '<div class="title">' + totalEntries + ' Results found for ' + keywords + '</div>';
+
+                            for (i=0; i<items.length; i++) {
+
+                                if(items[i].galleryURL == 'https://thumbs1.ebaystatic.com/pict/04040_0.jpg'){
+                                    productImage = '/static/img/ebay_default.jpg';
+                                } else {
+                                    productImage = items[i].galleryURL;
+                                }
+
+                                if(i < 3){
+                                    divId = 'show-card';
+                                } else {
+                                    divId = 'hide';
+                                }
+
+                                htmlCode += '<div id="card'+i+'" class="' + divId + '"><div class="image"><img src="' + productImage + '"></div><div id="description"><p><a href="' + items[i].viewItemURL[0] + '">' + items[i].title[0] + '</a></p><p>Category: ' + items[i].primaryCategory[0]['categoryName'] + '</p><p>Condition: ' + items[i].condition[0].conditionDisplayName[0] + '</p><p><b>Price: $' + items[i].sellingStatus[0].currentPrice[0].__value__ + '</b> From <i>' + items[i].location[0] + '</i></p></div></div>';
+                            }
+
+                            if(items.length > 3){
+                                htmlCode += '<div class="show-button" id="show-more"><button type="button" onclick="showMoreCards('+ items.length +');">Show More</button></div> \
+                                             <div class="hide" id="show-less"><button type="button" onclick="showLessCards('+ items.length +');">Show Less</button></div>'
                             }
                             
-                            if(i < 3){
-                                divId = 'show-card';
-                            } else {
-                                divId = 'hide';
-                            }
-                            
-                            htmlCode += '<div id="card'+i+'" class="' + divId + '"><div class="image"><img src="' + productImage + '"></div><div id="description"><p><a href="' + items[i].viewItemURL[0] + '">' + items[i].title[0] + '</a></p><p>Category: ' + items[i].primaryCategory[0]['categoryName'] + '</p><p>Condition: ' + items[i].condition[0].conditionDisplayName[0] + '</p><p><b>Price: $' + items[i].sellingStatus[0].currentPrice[0].__value__ + '</b> From <i>' + items[i].location[0] + '</i></p></div></div>';
+                        } else {
+                            htmlCode += '<div class="title">No results found</div>'
                         }
                         
-                        if(items.length > 2){
-                            htmlCode += '<div class="show-button" id="show-more"><button type="button" onclick="showMoreCards('+ items.length +');">Show More</button></div> \
-                                         <div class="hide" id="show-less"><button type="button" onclick="showLessCards('+ items.length +');">Show Less</button></div>'
-                        }
                         document.getElementById("results").innerHTML = htmlCode;
                     }
                 }
